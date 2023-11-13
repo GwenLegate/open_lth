@@ -5,6 +5,7 @@
 
 import typing
 import warnings
+import torch
 
 from datasets.base import DataLoader
 import datasets.registry
@@ -112,9 +113,11 @@ def train(
             # Otherwise, train.
             examples = examples.to(device=get_platform().torch_device)
             labels = labels.to(device=get_platform().torch_device)
+            labels = labels.type(torch.long)
 
             step_optimizer.zero_grad()
             model.train()
+
             loss = model.loss_criterion(model(examples), labels)
             if training_hparams.apex_fp16:
                 with apex.amp.scale_loss(loss, optimizer) as scaled_loss:
